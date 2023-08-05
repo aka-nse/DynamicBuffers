@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package DynamicBuffers.Test.TypedMessageTestCase;
+
+
+message TestCase01Message {
+}

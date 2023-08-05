@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>10</LangVersion>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>DynamicBuffers</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.23.4" />
+        <PackageReference Include="Google.Protobuf.Tools" Version="3.23.4" />
+        <PackageReference Include="Grpc.Tools" Version="2.56.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(ProjectDir)../../proto/*.proto" LinkBase="proto" />
+        <Protobuf Include="$(ProjectDir)../../proto/*.proto" GrpcServices="None" />
+    </ItemGroup>
+</Project>

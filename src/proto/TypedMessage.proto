@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+package DynamicBuffers;
+import "google/protobuf/any.proto";
+import "google/protobuf/descriptor.proto";
+
+
+// The message with type metadata.
+message TypedMessage {
+    // The metadata enough to scan content.
+    repeated google.protobuf.DescriptorProto metadata = 1;
+    // The main body of this message.
+    google.protobuf.Any content = 2;
+}
