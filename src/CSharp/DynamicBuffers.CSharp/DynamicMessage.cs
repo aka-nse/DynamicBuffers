@@ -11,66 +11,62 @@ using ProtoFieldType = Google.Protobuf.Reflection.FieldDescriptorProto.Types.Typ
 using ProtoFieldLabel = Google.Protobuf.Reflection.FieldDescriptorProto.Types.Label;
 using System.Runtime.CompilerServices;
 using System.Reflection;
+using System.Linq;
+using System.Xml.Linq;
 
 namespace DynamicBuffers;
 
 /// <summary>
 /// The dynamic access surface type for <see cref="TypedMessage"/> instance.
 /// </summary>
-public sealed class DynamicMessage : DynamicObject
+public sealed partial class DynamicMessage : DynamicObject
 {
-    private sealed class TypeNameComparer : IEqualityComparer<string>
+    private static int GetHashCode(ReadOnlySpan<char> name)
     {
-        public static IEqualityComparer<string> Instance { get; } = new TypeNameComparer();
-
-        private TypeNameComparer() { }
-
-        bool IEqualityComparer<string>.Equals(string x, string y) => Equals(x, y);
-        public static bool Equals(string x, string y)
-            => TakeTypeName(x).SequenceEqual(TakeTypeName(y));
-
-        int IEqualityComparer<string>.GetHashCode(string obj) => GetHashCode(obj);
-        public static int GetHashCode(string obj)
+        var hash = 0;
+        foreach (var c in name)
         {
-            var name = TakeTypeName(obj);
-            var hash = 0;
-            foreach (var c in name)
-            {
-                hash = ((hash << 5) | (hash >> 27)) ^ c;
-            }
-            return hash;
+            hash = ((hash << 5) | (hash >> 27)) ^ c;
         }
-
-        private static ReadOnlySpan<char> TakeTypeName(ReadOnlySpan<char> typeUrlLike)
-        {
-            var lastSlash = typeUrlLike.LastIndexOf('/');
-            if (lastSlash >= 0)
-            {
-                return typeUrlLike.Slice(lastSlash + 1);
-            }
-            if (typeUrlLike.Length > 0 && typeUrlLike[0] == '.')
-            {
-                return typeUrlLike.Slice(1);
-            }
-            return typeUrlLike;
-        }
+        return hash;
     }
+
+
 
 
     private readonly Dictionary<string, object?> _fields;
 
-
-    /// <summary>
-    /// Creates a new instance of <see cref="DynamicMessage"/>.
-    /// </summary>
-    /// <param name="targetTypeName"></param>
-    /// <param name="metadata"></param>
-    /// <param name="content"></param>
-    /// <exception cref="NotSupportedException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    public DynamicMessage(string targetTypeName, IReadOnlyDictionary<string, DescriptorProto> metadata, CodedInputStream content)
+    private DynamicMessage(string targetTypeName, IReadOnlyDictionary<string, DescriptorProto> metadata, CodedInputStream content, FieldNamePattern fieldNamePattern)
     {
-        static object? readNext(FieldDescriptorProto fieldInfo, IReadOnlyDictionary<string, DescriptorProto> metadata, CodedInputStream content)
+        static bool IsPackedRepeated(WireFormat.WireType wireType, FieldDescriptorProto fieldInfo)
+        {
+            if(wireType != WireFormat.WireType.LengthDelimited)
+            {
+                return false;
+            }
+            return fieldInfo.Type switch
+            {
+#pragma warning disable format
+                ProtoFieldType.Double   or
+                ProtoFieldType.Float    or
+                ProtoFieldType.Int64    or
+                ProtoFieldType.Uint64   or
+                ProtoFieldType.Int32    or
+                ProtoFieldType.Fixed64  or
+                ProtoFieldType.Fixed32  or
+                ProtoFieldType.Bool     or
+                ProtoFieldType.Uint32   or
+                ProtoFieldType.Enum     or
+                ProtoFieldType.Sfixed32 or
+                ProtoFieldType.Sfixed64 or
+                ProtoFieldType.Sint32   or
+                ProtoFieldType.Sint64   => true,
+                _ => false,
+#pragma warning restore format
+            };
+        }
+
+        static object? readNext(FieldDescriptorProto fieldInfo, IReadOnlyDictionary<string, DescriptorProto> metadata, CodedInputStream content, FieldNamePattern fieldNamePattern)
         {
             object? fieldValue = fieldInfo.Type switch
             {
@@ -84,7 +80,7 @@ public sealed class DynamicMessage : DynamicObject
                 ProtoFieldType.Fixed32  => content.ReadFixed32 (),
                 ProtoFieldType.Bool     => content.ReadBool    (),
                 ProtoFieldType.String   => content.ReadString  (),
-                ProtoFieldType.Message  => new DynamicMessage(fieldInfo.TypeName, metadata, content.ReadBytes().CreateCodedInput()),
+                ProtoFieldType.Message  => new DynamicMessage(fieldInfo.TypeName, metadata, content.ReadBytes().CreateCodedInput(), fieldNamePattern),
                 ProtoFieldType.Bytes    => content.ReadBytes   (),
                 ProtoFieldType.Uint32   => content.ReadUInt32  (),
                 ProtoFieldType.Enum     => content.ReadEnum    (),
@@ -103,20 +99,95 @@ public sealed class DynamicMessage : DynamicObject
                 {
                     throw new ArgumentException("Member resolution was failed.");
                 }
-                var typeUrl = dynamicFieldValue.GetMemberOrThrow<string>(nameof(Any.TypeUrl), new ArgumentException("Member resolution was failed."));
-                var value = dynamicFieldValue.GetMemberOrThrow<ByteString>(nameof(Any.Value), new ArgumentException("Member resolution was failed."));
-                return new DynamicMessage(typeUrl, metadata, value.CreateCodedInput());
+                var typeUrl = dynamicFieldValue.GetMemberOrThrow<string>(nameof(Any.TypeUrl), () => new ArgumentException("Member resolution was failed."));
+                var value = dynamicFieldValue.GetMemberOrThrow<ByteString>(nameof(Any.Value), () => new ArgumentException("Member resolution was failed."));
+                return new DynamicMessage(typeUrl, metadata, value.CreateCodedInput(), fieldNamePattern);
             }
             return fieldValue;
         }
 
-        _fields = new(TypeNameComparer.Instance);
+        static void readNextPackedRepeated(FieldDescriptorProto fieldInfo, CodedInputStream content, IList destination)
+        {
+            var buffer = content.ReadBytes().CreateCodedInput();
+            switch (fieldInfo.Type)
+            {
+                case ProtoFieldType.Double:
+                    var doubleList = (List<double>)destination;
+                    while (!buffer.IsAtEnd) { doubleList.Add(buffer.ReadDouble()); }
+                    break;
+                case ProtoFieldType.Float:
+                    var floatList = (List<float>)destination;
+                    while (!buffer.IsAtEnd) { floatList.Add(buffer.ReadFloat()); }
+                    break;
+                case ProtoFieldType.Int64:
+                    var int64List = (List<long>)destination;
+                    while (!buffer.IsAtEnd) { int64List.Add(buffer.ReadInt64()); }
+                    break;
+                case ProtoFieldType.Uint64:
+                    var uint64List = (List<ulong>)destination;
+                    while (!buffer.IsAtEnd) { uint64List.Add(buffer.ReadUInt64()); }
+                    break;
+                case ProtoFieldType.Int32:
+                    var int32List = (List<int>)destination;
+                    while (!buffer.IsAtEnd) { int32List.Add(buffer.ReadInt32()); }
+                    break;
+                case ProtoFieldType.Fixed64:
+                    var fixed64List = (List<ulong>)destination;
+                    while(!buffer.IsAtEnd) { fixed64List.Add(buffer.ReadFixed64()); }
+                    break;
+                case ProtoFieldType.Fixed32:
+                    var fixed32List = (List<uint>)destination;
+                    while (!buffer.IsAtEnd) { fixed32List.Add(buffer.ReadFixed32()); }
+                    break;
+                case ProtoFieldType.Bool:
+                    var boolList = (List<bool>)destination;
+                    while (!buffer.IsAtEnd) { boolList.Add(buffer.ReadBool()); }
+                    break;
+                case ProtoFieldType.Uint32:
+                    var uint32List = (List<uint>)destination;
+                    while (!buffer.IsAtEnd) { uint32List.Add(buffer.ReadUInt32()); }
+                    break;
+                case ProtoFieldType.Enum:
+                    var enumList = (List<int>)destination;
+                    while (!buffer.IsAtEnd) { enumList.Add(buffer.ReadEnum()); }
+                    break;
+                case ProtoFieldType.Sfixed32:
+                    var sfixed32List = (List<int>)destination;
+                    while (!buffer.IsAtEnd) { sfixed32List.Add(buffer.ReadSFixed32()); }
+                    break;
+                case ProtoFieldType.Sfixed64:
+                    var sfixed64List = (List<long>)destination;
+                    while (!buffer.IsAtEnd) { sfixed64List.Add(buffer.ReadSFixed64()); }
+                    break;
+                case ProtoFieldType.Sint32:
+                    var sint32List = (List<int>)destination;
+                    while (!buffer.IsAtEnd) { sint32List.Add(buffer.ReadSInt32()); }
+                    break;
+                case ProtoFieldType.Sint64:
+                    var sint64List = (List<long>)destination;
+                    while (!buffer.IsAtEnd) { sint64List.Add(buffer.ReadSInt64()); }
+                    break;
+                default:
+                    throw new ArgumentException("Invalid packed repeated field.");
+            }
+        }
+
+        _fields = new(fieldNamePattern switch
+        {
+            FieldNamePattern.CSharpName => CSharpNameComparer.Instance,
+            FieldNamePattern.JsonName => JsonNameComparer.Instance,
+            FieldNamePattern.ProtoName => EqualityComparer<string>.Default,
+            _ => throw new ArgumentOutOfRangeException("Invalid 'fieldNamePattern'."),
+        });
         var typeInfo = metadata.TryGetValue(targetTypeName, out var info)
             ? info
             : throw new ArgumentException("Member resolution was failed.");
-        foreach (var fieldInfo in typeInfo.Field)
+        while(!content.IsAtEnd)
         {
-            var fieldValue = readNext(fieldInfo, metadata, content);
+            var tag = content.ReadTag();
+            var wireType = WireFormat.GetTagWireType(tag);
+            var fieldNumber = WireFormat.GetTagFieldNumber(tag);
+            var fieldInfo = typeInfo.Field.Single(field => field.Number == fieldNumber);
             switch (fieldInfo.Label)
             {
                 case ProtoFieldLabel.Repeated:
@@ -151,13 +222,29 @@ public sealed class DynamicMessage : DynamicObject
                             _ => throw new NotSupportedException("Group field is not supported."),
 #pragma warning restore format
                         });
-                    list.Add(fieldValue);
+                    if(IsPackedRepeated(wireType, fieldInfo))
+                    {
+                        // packed repeated
+                        readNextPackedRepeated(fieldInfo, content, list);
+                    }
+                    else
+                    {
+                        // non-packed repeated
+                        var fieldValue = readNext(fieldInfo, metadata, content, fieldNamePattern);
+                        list.Add(fieldValue);
+                    }
                     continue;
+
                 case ProtoFieldLabel.Optional:
-                    _fields.Add(fieldInfo.Name, fieldValue);
+                    {
+                        var fieldValue = readNext(fieldInfo, metadata, content, fieldNamePattern);
+                        _fields[fieldInfo.Name] = fieldValue;
+                    }
                     continue;
+
                 case ProtoFieldLabel.Required:
                     throw new NotSupportedException();
+
                 default:
                     throw new ArgumentException();
             }
@@ -168,10 +255,14 @@ public sealed class DynamicMessage : DynamicObject
     /// <summary>
     /// Creates a new instance of <see cref="DynamicMessage"/>.
     /// </summary>
+    /// <param name="targetTypeName"></param>
     /// <param name="metadata"></param>
-    /// <param name="message"></param>
-    public DynamicMessage(IReadOnlyDictionary<string, DescriptorProto> metadata, IMessage message)
-        : this(message.Descriptor.FullName, metadata, message.ToByteString().CreateCodedInput())
+    /// <param name="content"></param>
+    /// <param name="fieldNamePattern"></param>
+    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    public DynamicMessage(string targetTypeName, IEnumerable<DescriptorProto> metadata, CodedInputStream content, FieldNamePattern fieldNamePattern = FieldNamePattern.CSharpName)
+        : this(targetTypeName, metadata.ToDictionary(type => type.Name, TypeNameComparer.Instance), content, fieldNamePattern)
     {
     }
 
@@ -181,8 +272,21 @@ public sealed class DynamicMessage : DynamicObject
     /// </summary>
     /// <param name="metadata"></param>
     /// <param name="message"></param>
-    public DynamicMessage(IReadOnlyDictionary<string, DescriptorProto> metadata, Any message)
-        : this(message.TypeUrl, metadata, message.Value.CreateCodedInput())
+    /// <param name="fieldNamePattern"></param>
+    public DynamicMessage(IEnumerable<DescriptorProto> metadata, IMessage message, FieldNamePattern fieldNamePattern = FieldNamePattern.CSharpName)
+        : this(message.Descriptor.FullName, metadata, message.ToByteString().CreateCodedInput(), fieldNamePattern)
+    {
+    }
+
+
+    /// <summary>
+    /// Creates a new instance of <see cref="DynamicMessage"/>.
+    /// </summary>
+    /// <param name="metadata"></param>
+    /// <param name="message"></param>
+    /// <param name="fieldNamePattern"></param>
+    public DynamicMessage(IEnumerable<DescriptorProto> metadata, Any message, FieldNamePattern fieldNamePattern = FieldNamePattern.CSharpName)
+        : this(message.TypeUrl, metadata, message.Value.CreateCodedInput(), fieldNamePattern)
     {
     }
 
@@ -196,8 +300,8 @@ public sealed class DynamicMessage : DynamicObject
         => _fields.TryGetValue(memberName, out result);
 
 
-    private T GetMemberOrThrow<T>(string memberName, Exception error)
+    private T GetMemberOrThrow<T>(string memberName, Func<Exception> error)
         => TryGetMember(memberName, out var result) && result is T tResult
             ? tResult
-            : throw error;
+            : throw error();
 }

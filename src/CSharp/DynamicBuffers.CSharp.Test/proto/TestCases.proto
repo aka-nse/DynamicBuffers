@@ -1,0 +1,100 @@
+﻿syntax = "proto3";
+import "google/protobuf/any.proto";
+package DynamicBuffers.Test.TestCases;
+
+
+message InnerMessage1 {
+    int32 field01 = 1;
+    string field02 = 2;
+}
+
+
+message InnerMessage3 {
+    message InnerMessage2 {
+        int32 field01 = 1;
+        string field02 = 2;
+    }
+
+    InnerMessage1 field01 = 1;
+    InnerMessage2 field02 = 2;
+    google.protobuf.Any field03 = 3;
+    google.protobuf.Any field04 = 4;
+    repeated InnerMessage1 field05 = 5;
+    repeated InnerMessage2 field06 = 6;
+    repeated google.protobuf.Any field07 = 7;
+}
+
+
+enum TestEnum1 {
+    TEST_ENUM_1_VALUE_0 = 0;
+    TEST_ENUM_1_VALUE_1 = 1;
+    TEST_ENUM_1_VALUE_2 = 2;
+}
+
+
+message TestCaseMessage {
+    enum TestEnum2 {
+        TEST_ENUM_2_VALUE_0 = 0;
+        TEST_ENUM_2_VALUE_1 = 1;
+        TEST_ENUM_2_VALUE_2 = 2;
+    }
+
+    double        fieldDouble   = 1;
+    float         fieldFloat    = 2;
+    int32         fieldInt32    = 3;
+    int64         fieldInt64    = 4;
+    uint32        fieldUint32   = 5;
+    uint64        fieldUint64   = 6;
+    sint32        fieldSint32   = 7;
+    sint64        fieldSint64   = 8;
+    fixed32       fieldFixed32  = 9;
+    fixed64       fieldFixed64  = 10;
+    sfixed32      fieldSfixed32 = 11;
+    sfixed64      fieldSfixed64 = 12;
+    bool          fieldBool     = 13;
+    string        fieldString   = 14;
+    bytes         fieldBytes    = 15;
+    TestEnum1     fieldEnum1    = 16;
+    TestEnum2     fieldEnum2    = 17;
+    InnerMessage3 fieldMessage  = 18;
+
+    repeated double        fieldRepeatedDouble   = 21;
+    repeated float         fieldRepeatedFloat    = 22;
+    repeated int32         fieldRepeatedInt32    = 23;
+    repeated int64         fieldRepeatedInt64    = 24;
+    repeated uint32        fieldRepeatedUint32   = 25;
+    repeated uint64        fieldRepeatedUint64   = 26;
+    repeated sint32        fieldRepeatedSint32   = 27;
+    repeated sint64        fieldRepeatedSint64   = 28;
+    repeated fixed32       fieldRepeatedFixed32  = 29;
+    repeated fixed64       fieldRepeatedFixed64  = 30;
+    repeated sfixed32      fieldRepeatedSfixed32 = 31;
+    repeated sfixed64      fieldRepeatedSfixed64 = 32;
+    repeated bool          fieldRepeatedBool     = 33;
+    repeated string        fieldRepeatedString   = 34;
+    repeated bytes         fieldRepeatedBytes    = 35;
+    repeated TestEnum1     fieldRepeatedEnum1    = 36;
+    repeated TestEnum2     fieldRepeatedEnum2    = 37;
+    repeated InnerMessage3 fieldRepeatedMessage  = 38;
+
+    oneof fieldOneOf {
+        double        fieldOneOfDouble   = 41;
+        float         fieldOneOfFloat    = 42;
+        int32         fieldOneOfInt32    = 43;
+        int64         fieldOneOfInt64    = 44;
+        uint32        fieldOneOfUint32   = 45;
+        uint64        fieldOneOfUint64   = 46;
+        sint32        fieldOneOfSint32   = 47;
+        sint64        fieldOneOfSint64   = 48;
+        fixed32       fieldOneOfFixed32  = 49;
+        fixed64       fieldOneOfFixed64  = 50;
+        sfixed32      fieldOneOfSfixed32 = 51;
+        sfixed64      fieldOneOfSfixed64 = 52;
+        bool          fieldOneOfBool     = 53;
+        string        fieldOneOfString   = 54;
+        bytes         fieldOneOfBytes    = 55;
+        TestEnum1     fieldOneOfEnum1    = 56;
+        TestEnum2     fieldOneOfEnum2    = 57;
+        InnerMessage3 fieldOneOfMessage  = 58;
+    }
+}

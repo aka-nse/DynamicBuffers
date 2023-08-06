@@ -38,7 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="proto\TypedMessageTest.proto" />
+      <None Remove="proto\TestCases.proto" />
     </ItemGroup>
 
 </Project>

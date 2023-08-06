@@ -104,10 +104,9 @@ public partial class TypedMessage
     /// <summary>
     /// Gets dynamic access surface for this <see cref="TypedMessage"/> instance.
     /// </summary>
+    /// <param name="fieldNamePattern"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public dynamic AsDynamic()
-    {
-        throw new NotImplementedException();
-    }
+    public dynamic AsDynamic(FieldNamePattern fieldNamePattern = FieldNamePattern.CSharpName)
+        => new DynamicMessage(Metadata, Content, fieldNamePattern);
 }
