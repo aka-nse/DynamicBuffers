@@ -32,9 +32,8 @@ public sealed partial class DynamicMessage : DynamicObject
     }
 
 
-
-
     private readonly Dictionary<string, object?> _fields;
+
 
     private DynamicMessage(string targetTypeName, IReadOnlyDictionary<string, DescriptorProto> metadata, CodedInputStream content, FieldNamePattern fieldNamePattern)
     {
