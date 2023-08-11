@@ -77,24 +77,45 @@ message TestCaseMessage {
     repeated TestEnum2     fieldRepeatedEnum2    = 37;
     repeated InnerMessage3 fieldRepeatedMessage  = 38;
 
-    oneof fieldOneOf {
-        double        fieldOneOfDouble   = 41;
-        float         fieldOneOfFloat    = 42;
-        int32         fieldOneOfInt32    = 43;
-        int64         fieldOneOfInt64    = 44;
-        uint32        fieldOneOfUint32   = 45;
-        uint64        fieldOneOfUint64   = 46;
-        sint32        fieldOneOfSint32   = 47;
-        sint64        fieldOneOfSint64   = 48;
-        fixed32       fieldOneOfFixed32  = 49;
-        fixed64       fieldOneOfFixed64  = 50;
-        sfixed32      fieldOneOfSfixed32 = 51;
-        sfixed64      fieldOneOfSfixed64 = 52;
-        bool          fieldOneOfBool     = 53;
-        string        fieldOneOfString   = 54;
-        bytes         fieldOneOfBytes    = 55;
-        TestEnum1     fieldOneOfEnum1    = 56;
-        TestEnum2     fieldOneOfEnum2    = 57;
-        InnerMessage3 fieldOneOfMessage  = 58;
+    oneof fieldOneOf1 {
+        double        fieldOneOf1Double   = 41;
+        float         fieldOneOf1Float    = 42;
+        int32         fieldOneOf1Int32    = 43;
+        int64         fieldOneOf1Int64    = 44;
+        uint32        fieldOneOf1Uint32   = 45;
+        uint64        fieldOneOf1Uint64   = 46;
+        sint32        fieldOneOf1Sint32   = 47;
+        sint64        fieldOneOf1Sint64   = 48;
+        fixed32       fieldOneOf1Fixed32  = 49;
+        fixed64       fieldOneOf1Fixed64  = 50;
+        sfixed32      fieldOneOf1Sfixed32 = 51;
+        sfixed64      fieldOneOf1Sfixed64 = 52;
+        bool          fieldOneOf1Bool     = 53;
+        string        fieldOneOf1String   = 54;
+        bytes         fieldOneOf1Bytes    = 55;
+        TestEnum1     fieldOneOf1Enum1    = 56;
+        TestEnum2     fieldOneOf1Enum2    = 57;
+        InnerMessage3 fieldOneOf1Message  = 58;
+    }
+
+    oneof fieldOneOf2 {
+        double        fieldOneOf2Double   = 61;
+        float         fieldOneOf2Float    = 62;
+        int32         fieldOneOf2Int32    = 63;
+        int64         fieldOneOf2Int64    = 64;
+        uint32        fieldOneOf2Uint32   = 65;
+        uint64        fieldOneOf2Uint64   = 66;
+        sint32        fieldOneOf2Sint32   = 67;
+        sint64        fieldOneOf2Sint64   = 68;
+        fixed32       fieldOneOf2Fixed32  = 69;
+        fixed64       fieldOneOf2Fixed64  = 70;
+        sfixed32      fieldOneOf2Sfixed32 = 71;
+        sfixed64      fieldOneOf2Sfixed64 = 72;
+        bool          fieldOneOf2Bool     = 73;
+        string        fieldOneOf2String   = 74;
+        bytes         fieldOneOf2Bytes    = 75;
+        TestEnum1     fieldOneOf2Enum1    = 76;
+        TestEnum2     fieldOneOf2Enum2    = 77;
+        InnerMessage3 fieldOneOf2Message  = 78;
     }
 }

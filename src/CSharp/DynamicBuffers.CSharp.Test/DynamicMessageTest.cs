@@ -272,117 +272,117 @@ public class DynamicMessageTest
 
     [Fact]
     public void FieldOneOfDouble() => TestCore(
-        new TestCaseMessage { FieldOneOfDouble = 123.45, },
-        message => message.FieldOneOfDouble == 123.45
+        new TestCaseMessage { FieldOneOf1Double = 123.45, },
+        message => message.FieldOneOf1Double == 123.45
         );
 
     [Fact]
     public void FieldOneOfFloat() => TestCore(
-        new TestCaseMessage { FieldOneOfFloat = 123.45f, },
-        message => message.FieldOneOfFloat == 123.45f
+        new TestCaseMessage { FieldOneOf1Float = 123.45f, },
+        message => message.FieldOneOf1Float == 123.45f
         );
 
     [Fact]
     public void FieldOneOfInt32() => TestCore(
-        new TestCaseMessage { FieldOneOfInt32 = 12345, },
-        message => message.FieldOneOfInt32 == 12345
+        new TestCaseMessage { FieldOneOf1Int32 = 12345, },
+        message => message.FieldOneOf1Int32 == 12345
         );
 
     [Fact]
     public void FieldOneOfInt64() => TestCore(
-        new TestCaseMessage { FieldOneOfInt64 = 12345L, },
-        message => message.FieldOneOfInt64 == 12345L
+        new TestCaseMessage { FieldOneOf1Int64 = 12345L, },
+        message => message.FieldOneOf1Int64 == 12345L
         );
     [Fact]
     public void FieldOneOfUint32() => TestCore(
-        new TestCaseMessage { FieldOneOfUint32 = 12345u, },
-        message => message.FieldOneOfUint32 == 12345u
+        new TestCaseMessage { FieldOneOf1Uint32 = 12345u, },
+        message => message.FieldOneOf1Uint32 == 12345u
         );
 
     [Fact]
     public void FieldOneOfUint64() => TestCore(
-        new TestCaseMessage { FieldOneOfUint64 = 12345uL, },
-        message => message.FieldOneOfUint64 == 12345uL
+        new TestCaseMessage { FieldOneOf1Uint64 = 12345uL, },
+        message => message.FieldOneOf1Uint64 == 12345uL
         );
 
     [Fact]
     public void FieldOneOfSint32() => TestCore(
-        new TestCaseMessage { FieldOneOfSint32 = 12345, },
-        message => message.FieldOneOfSint32 == 12345
+        new TestCaseMessage { FieldOneOf1Sint32 = 12345, },
+        message => message.FieldOneOf1Sint32 == 12345
         );
 
     [Fact]
     public void FieldOneOfSint64() => TestCore(
-        new TestCaseMessage { FieldOneOfSint64 = 12345L, },
-        message => message.FieldOneOfSint64 == 12345L
+        new TestCaseMessage { FieldOneOf1Sint64 = 12345L, },
+        message => message.FieldOneOf1Sint64 == 12345L
         );
 
     [Fact]
     public void FieldOneOfFixed32() => TestCore(
-        new TestCaseMessage { FieldOneOfFixed32 = 12345u, },
-        message => message.FieldOneOfFixed32 == 12345u
+        new TestCaseMessage { FieldOneOf1Fixed32 = 12345u, },
+        message => message.FieldOneOf1Fixed32 == 12345u
         );
 
     [Fact]
     public void FieldOneOfFixed64() => TestCore(
-        new TestCaseMessage { FieldOneOfFixed64 = 12345uL, },
-        message => message.FieldOneOfFixed64 == 12345uL
+        new TestCaseMessage { FieldOneOf1Fixed64 = 12345uL, },
+        message => message.FieldOneOf1Fixed64 == 12345uL
         );
 
     [Fact]
     public void FieldOneOfSfixed32() => TestCore(
-        new TestCaseMessage { FieldOneOfSfixed32 = 12345 },
-        message => message.FieldOneOfSfixed32 == 12345
+        new TestCaseMessage { FieldOneOf1Sfixed32 = 12345 },
+        message => message.FieldOneOf1Sfixed32 == 12345
         );
 
     [Fact]
     public void FieldOneOfSfixed64() => TestCore(
-        new TestCaseMessage { FieldOneOfSfixed64 = 12345L, },
-        message => message.FieldOneOfSfixed64 == 12345L
+        new TestCaseMessage { FieldOneOf1Sfixed64 = 12345L, },
+        message => message.FieldOneOf1Sfixed64 == 12345L
         );
 
     [Fact]
     public void FieldOneOfBool() => TestCore(
-        new TestCaseMessage { FieldOneOfBool = true, },
-        message => message.FieldOneOfBool == true
+        new TestCaseMessage { FieldOneOf1Bool = true, },
+        message => message.FieldOneOf1Bool == true
         );
 
     [Fact]
     public void FieldOneOfString() => TestCore(
-        new TestCaseMessage { FieldOneOfString =  "foobar", },
-        message => message.FieldOneOfString == "foobar"
+        new TestCaseMessage { FieldOneOf1String =  "foobar", },
+        message => message.FieldOneOf1String == "foobar"
         );
 
     [Fact]
     public void FieldOneOfBytes() => TestCore(
-        new TestCaseMessage { FieldOneOfBytes = ByteString.CopyFrom(0x00, 0x11, 0x22, 0x33), },
-        message => Enumerable.SequenceEqual(message.FieldOneOfBytes, new byte[] { 0x00, 0x11, 0x22, 0x33, })
+        new TestCaseMessage { FieldOneOf1Bytes = ByteString.CopyFrom(0x00, 0x11, 0x22, 0x33), },
+        message => Enumerable.SequenceEqual(message.FieldOneOf1Bytes, new byte[] { 0x00, 0x11, 0x22, 0x33, })
         );
 
     [Fact]
     public void FieldOneOfEnum1() => TestCore(
-        new TestCaseMessage { FieldOneOfEnum1 = TestEnum1.Value1, },
-        message => message.FieldOneOfEnum1 == (int)TestEnum1.Value1
+        new TestCaseMessage { FieldOneOf1Enum1 = TestEnum1.Value1, },
+        message => message.FieldOneOf1Enum1 == (int)TestEnum1.Value1
         );
 
     [Fact]
     public void FieldOneOfEnum2() => TestCore(
-        new TestCaseMessage { FieldOneOfEnum2 = TestCaseMessage.Types.TestEnum2.Value1, },
-        message => message.FieldOneOfEnum2 == (int)TestCaseMessage.Types.TestEnum2.Value1
+        new TestCaseMessage { FieldOneOf1Enum2 = TestCaseMessage.Types.TestEnum2.Value1, },
+        message => message.FieldOneOf1Enum2 == (int)TestCaseMessage.Types.TestEnum2.Value1
         );
 
     [Fact]
     public void FieldOneOfMessage() => TestCore(
         new TestCaseMessage
         {
-            FieldOneOfMessage = 
+            FieldOneOf1Message = 
                     new InnerMessage3 { Field07 = {
                         Any.Pack(new InnerMessage1 { Field01 = 3, }),
                         Any.Pack(new InnerMessage3.Types.InnerMessage2{ Field02 = "baz", }),
                     }, },
         },
-        message => message.FieldOneOfMessage.Field07[0].Field01 == 3
-            && message.FieldOneOfMessage.Field07[1].Field02 == "baz"
+        message => message.FieldOneOf1Message.Field07[0].Field01 == 3
+            && message.FieldOneOf1Message.Field07[1].Field02 == "baz"
         );
 
     #endregion
