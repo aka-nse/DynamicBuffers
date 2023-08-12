@@ -5,6 +5,17 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
         <RootNamespace>DynamicBuffers</RootNamespace>
+        <AssemblyVersion>0.1.0.0</AssemblyVersion>
+        <FileVersion>$(AssemblyVersion)</FileVersion>
+        <Version>$(AssemblyVersion)</Version>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+        <Authors>aka-nse</Authors>
+        <Copyright>aka-nse</Copyright>
+        <Description>introduce dynamic programming into Protocol Buffers</Description>
+        <RepositoryUrl>https://github.com/aka-nse/DynamicBuffers</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>Protocol Buffers;dynamic</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,5 +30,16 @@
     <ItemGroup>
         <None Include="$(ProjectDir)../../proto/*.proto" LinkBase="proto" />
         <Protobuf Include="$(ProjectDir)../../proto/*.proto" GrpcServices="None" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\..\..\LICENSE">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+      <None Include="..\..\..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 </Project>
