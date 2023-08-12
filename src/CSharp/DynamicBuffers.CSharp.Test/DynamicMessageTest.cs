@@ -293,24 +293,6 @@ public class DynamicMessageTest
             (nameof(TestCaseMessage.HasFieldOneOf1Enum1   ), msg => msg.HasFieldOneOf1Enum1   ),
             (nameof(TestCaseMessage.HasFieldOneOf1Enum2   ), msg => msg.HasFieldOneOf1Enum2   ),
             ("hasFieldOneOf1Message"                       , msg => msg.HasFieldOneOf1Message ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Double  ), msg => msg.HasFieldOneOf2Double  ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Float   ), msg => msg.HasFieldOneOf2Float   ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Int32   ), msg => msg.HasFieldOneOf2Int32   ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Int64   ), msg => msg.HasFieldOneOf2Int64   ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Uint32  ), msg => msg.HasFieldOneOf2Uint32  ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Uint64  ), msg => msg.HasFieldOneOf2Uint64  ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Sint32  ), msg => msg.HasFieldOneOf2Sint32  ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Sint64  ), msg => msg.HasFieldOneOf2Sint64  ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Fixed32 ), msg => msg.HasFieldOneOf2Fixed32 ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Fixed64 ), msg => msg.HasFieldOneOf2Fixed64 ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Sfixed32), msg => msg.HasFieldOneOf2Sfixed32),
-            (nameof(TestCaseMessage.HasFieldOneOf2Sfixed64), msg => msg.HasFieldOneOf2Sfixed64),
-            (nameof(TestCaseMessage.HasFieldOneOf2Bool    ), msg => msg.HasFieldOneOf2Bool    ),
-            (nameof(TestCaseMessage.HasFieldOneOf2String  ), msg => msg.HasFieldOneOf2String  ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Bytes   ), msg => msg.HasFieldOneOf2Bytes   ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Enum1   ), msg => msg.HasFieldOneOf2Enum1   ),
-            (nameof(TestCaseMessage.HasFieldOneOf2Enum2   ), msg => msg.HasFieldOneOf2Enum2   ),
-            ("hasFieldOneOf2Message"                       , msg => msg.HasFieldOneOf2Message ),
 #pragma warning restore format
         };
         foreach(var (field, validator) in validators)
@@ -322,6 +304,30 @@ public class DynamicMessageTest
         }
         throw new InvalidOperationException("Never through path");
     }
+
+    [Fact]
+    public void FieldOneOfNotAssigned() => TestCore(
+        new TestCaseMessage(),
+        msg => msg.FieldOneOf1 == null
+            && msg.FieldOneOf1Double   == default(double)
+            && msg.FieldOneOf1Float    == default(float)
+            && msg.FieldOneOf1Int32    == default(int)
+            && msg.FieldOneOf1Int64    == default(long)
+            && msg.FieldOneOf1Uint32   == default(uint)
+            && msg.FieldOneOf1Uint64   == default(ulong)
+            && msg.FieldOneOf1Sint32   == default(int)
+            && msg.FieldOneOf1Sint64   == default(long)
+            && msg.FieldOneOf1Fixed32  == default(uint)
+            && msg.FieldOneOf1Fixed64  == default(ulong)
+            && msg.FieldOneOf1Sfixed32 == default(int)
+            && msg.FieldOneOf1Sfixed64 == default(long)
+            && msg.FieldOneOf1Bool     == default(bool)
+            && msg.FieldOneOf1String   == string.Empty
+            && Enumerable.SequenceEqual(ByteString.Empty, msg.FieldOneOf1Bytes)
+            && msg.FieldOneOf1Enum1    == default(int)
+            && msg.FieldOneOf1Enum2    == default(int)
+            && msg.FieldOneOf1Message  == null
+        );
 
     [Fact]
     public void FieldOneOfDouble() => TestCore(
@@ -491,6 +497,15 @@ public class DynamicMessageTest
             && msg.FieldOneOf1.Field07[1].Field02 == "baz"
             && msg.FieldOneOf1Message.Field07[0].Field01 == 3
             && msg.FieldOneOf1Message.Field07[1].Field02 == "baz"
+        );
+
+    [Fact]
+    public void FieldNone01() => TestCore(
+        new TestCaseMessage { None = "foobar", },
+        msg => msg.FieldOneOf2Case == "None_"
+            && msg.HasNone == true
+            && msg.FieldOneOf2 == "foobar"
+            && msg.None == "foobar"
         );
 
     #endregion

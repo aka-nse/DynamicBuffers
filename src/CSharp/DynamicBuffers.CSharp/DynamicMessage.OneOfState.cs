@@ -36,11 +36,22 @@ partial class DynamicMessage
         {
             if (comparer.Equals(memberName, Name))
             {
-                return (true, fields[CurrentCase]);
+                return (true, fields.TryGetValue(CurrentCase, out var value) ? value : null);
+            }
+            if (CandidateFields.SingleOrDefault(field => comparer.Equals(field.Name, memberName)) is { } unassignedField)
+            {
+                return (true, unassignedField.GetDefault());
             }
             if (comparer.Equals(memberName, Name + "Case"))
             {
-                return (true, comparer.ConvertName(CurrentCase, stackalloc char[CurrentCase.Length]).ToString());
+                return (
+                    true,
+                    CurrentCase switch
+                    {
+                        // handle special name
+                        "None_" => "None_",
+                        _ => comparer.ConvertName(CurrentCase, stackalloc char[CurrentCase.Length]).ToString(),
+                    });
             }
             if (memberName.StartsWith("Has"))
             {

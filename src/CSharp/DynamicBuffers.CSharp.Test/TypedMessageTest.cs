@@ -1,4 +1,5 @@
 using DynamicBuffers.Test.TestCases;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -9,6 +10,13 @@ public partial class TypedMessageTest
     [Fact]
     public void Create()
     {
+        var x = new TestCaseMessage
+        {
+            FieldOneOf1Bool = true,
+        };
+        Console.WriteLine(x.FieldOneOf1Double);
+
+
         var metadatas = new string[]
         {
             "DynamicBuffers.Test.TestCases.TestCaseMessage",
@@ -21,7 +29,7 @@ public partial class TypedMessageTest
         var msg = TypedMessage.Create(content);
         foreach(var typeName in metadatas)
         {
-            Assert.True(msg.Metadata.Any(x => x.Name == typeName));
+            Assert.Contains(msg.Metadata, x => x.Name == typeName);
         }
 
         Assert.Equal(content, msg.Content.Unpack<TestCaseMessage>());

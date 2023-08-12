@@ -78,7 +78,6 @@ message TestCaseMessage {
     repeated InnerMessage3 fieldRepeatedMessage  = 38;
 
     oneof fieldOneOf1 {
-        string None = 40;
         double        fieldOneOf1Double   = 41;
         float         fieldOneOf1Float    = 42;
         int32         fieldOneOf1Int32    = 43;
@@ -100,23 +99,7 @@ message TestCaseMessage {
     }
 
     oneof fieldOneOf2 {
-        double        fieldOneOf2Double   = 61;
-        float         fieldOneOf2Float    = 62;
-        int32         fieldOneOf2Int32    = 63;
-        int64         fieldOneOf2Int64    = 64;
-        uint32        fieldOneOf2Uint32   = 65;
-        uint64        fieldOneOf2Uint64   = 66;
-        sint32        fieldOneOf2Sint32   = 67;
-        sint64        fieldOneOf2Sint64   = 68;
-        fixed32       fieldOneOf2Fixed32  = 69;
-        fixed64       fieldOneOf2Fixed64  = 70;
-        sfixed32      fieldOneOf2Sfixed32 = 71;
-        sfixed64      fieldOneOf2Sfixed64 = 72;
-        bool          fieldOneOf2Bool     = 73;
-        string        fieldOneOf2String   = 74;
-        bytes         fieldOneOf2Bytes    = 75;
-        TestEnum1     fieldOneOf2Enum1    = 76;
-        TestEnum2     fieldOneOf2Enum2    = 77;
-        InnerMessage3 fieldOneOf2Message  = 78;
+        // test for special name
+        string None = 61;
     }
 }
