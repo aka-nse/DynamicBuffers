@@ -6,7 +6,12 @@ namespace DynamicBuffers;
 
 partial class DynamicMessage
 {
-    private abstract class FieldNameComparer: IEqualityComparer<string>
+    private interface IFieldNameComparer : IEqualityComparer<string>
+    {
+        ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output);
+    }
+
+    private abstract class FieldNameComparer: IFieldNameComparer
     {
         public bool Equals(string x, string y)
         {
@@ -18,17 +23,33 @@ partial class DynamicMessage
         public int GetHashCode(string obj)
             => DynamicMessage.GetHashCode(ConvertName(obj, stackalloc char[obj.Length]));
 
-        protected abstract ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output);
+        public abstract ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output);
+    }
+
+
+    private sealed class DefaultNameComparer : IFieldNameComparer
+    {
+        public static IFieldNameComparer Instance { get; } = new DefaultNameComparer();
+
+        public bool Equals(string x, string y) => EqualityComparer<string>.Default.Equals(x, y);
+
+        public int GetHashCode(string obj) => EqualityComparer<string>.Default.GetHashCode(obj);
+
+        public ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output)
+        {
+            input.CopyTo(output);
+            return output;
+        }
     }
 
 
     private sealed class CSharpNameComparer : FieldNameComparer
     {
-        public static IEqualityComparer<string> Instance { get; } = new CSharpNameComparer();
+        public static IFieldNameComparer Instance { get; } = new CSharpNameComparer();
 
         private CSharpNameComparer() { }
 
-        protected override ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output)
+        public override ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output)
         {
             var j = 0;
             var isNextUpperCase = true;
@@ -58,11 +79,11 @@ partial class DynamicMessage
 
     private sealed class JsonNameComparer : FieldNameComparer
     {
-        public static IEqualityComparer<string> Instance { get; } = new JsonNameComparer();
+        public static IFieldNameComparer Instance { get; } = new JsonNameComparer();
 
         private JsonNameComparer() { }
 
-        protected override ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output)
+        public override ReadOnlySpan<char> ConvertName(ReadOnlySpan<char> input, Span<char> output)
         {
             var j = 0;
             var isNextUpperCase = false;

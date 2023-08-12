@@ -78,6 +78,7 @@ message TestCaseMessage {
     repeated InnerMessage3 fieldRepeatedMessage  = 38;
 
     oneof fieldOneOf1 {
+        string None = 40;
         double        fieldOneOf1Double   = 41;
         float         fieldOneOf1Float    = 42;
         int32         fieldOneOf1Int32    = 43;

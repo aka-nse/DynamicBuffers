@@ -32,6 +32,8 @@ public sealed partial class DynamicMessage : DynamicObject
     }
 
 
+    private readonly IFieldNameComparer _fieldNameComparer;
+    private readonly List<OneOfState> _oneOfs;
     private readonly Dictionary<string, object?> _fields;
 
 
@@ -171,22 +173,31 @@ public sealed partial class DynamicMessage : DynamicObject
             }
         }
 
-        _fields = new(fieldNamePattern switch
+        _fieldNameComparer = fieldNamePattern switch
         {
             FieldNamePattern.CSharpName => CSharpNameComparer.Instance,
             FieldNamePattern.JsonName => JsonNameComparer.Instance,
-            FieldNamePattern.ProtoName => EqualityComparer<string>.Default,
+            FieldNamePattern.ProtoName => DefaultNameComparer.Instance,
             _ => throw new ArgumentOutOfRangeException("Invalid 'fieldNamePattern'."),
-        });
+        };
+        _fields = new(_fieldNameComparer);
         var typeInfo = metadata.TryGetValue(targetTypeName, out var info)
             ? info
             : throw new ArgumentException("Member resolution was failed.");
+        _oneOfs = typeInfo
+            .OneofDecl
+            .Select((decl, index) => new OneOfState(index, decl.Name, typeInfo.Field))
+            .ToList();
         while(!content.IsAtEnd)
         {
             var tag = content.ReadTag();
             var wireType = WireFormat.GetTagWireType(tag);
             var fieldNumber = WireFormat.GetTagFieldNumber(tag);
             var fieldInfo = typeInfo.Field.Single(field => field.Number == fieldNumber);
+            if (fieldInfo.HasOneofIndex)
+            {
+                _oneOfs[fieldInfo.OneofIndex].SetCase(fieldInfo);
+            }
             switch (fieldInfo.Label)
             {
                 case ProtoFieldLabel.Repeated:
@@ -296,8 +307,19 @@ public sealed partial class DynamicMessage : DynamicObject
 
 
     private bool TryGetMember(string memberName, out object? result)
-        => _fields.TryGetValue(memberName, out result);
-
+    {
+        if(_fields.TryGetValue(memberName, out result))
+        {
+            return true;
+        }
+        if(_oneOfs.Select(oneOf => oneOf.TryGetValue(memberName, _fieldNameComparer, _fields)).SingleOrDefault(tuple => tuple.hasValue) is { } tuple)
+        {
+            result = tuple.value;
+            return true;
+        }
+        result = default;
+        return false;
+    }
 
     private T GetMemberOrThrow<T>(string memberName, Func<Exception> error)
         => TryGetMember(memberName, out var result) && result is T tResult
