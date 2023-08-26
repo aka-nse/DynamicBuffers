@@ -34,7 +34,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="proto/*.proto" GrpcServices="None" />
+        <None Include="$(ProjectDir)../../proto.test/*.proto" LinkBase="proto" />
+        <Protobuf Include="$(ProjectDir)../../proto.test/*.proto" GrpcServices="None" />
     </ItemGroup>
 
     <ItemGroup>
