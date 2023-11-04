@@ -9,6 +9,8 @@ import google.protobuf.descriptor as _pbd
 import google.protobuf.any_pb2 as _pb_any
 from ._helpers import to_modified_proto
 from .proto.TypedMessage_pb2 import TypedMessage as _TypedMessage  # type: ignore # noqa
+from .field_name_pattern import FieldNamePattern
+from .dynamic_message import DynamicMessage
 
 
 _FieldNumberMap = Mapping[int, _pbd.FieldDescriptor]
@@ -84,3 +86,16 @@ def _TypedMessage__create(
 
 
 _TypedMessage.create = _TypedMessage__create
+
+
+def _TypedMessage__as_dynamic(
+        self: _TypedMessage,
+        field_name_pattern: FieldNamePattern = FieldNamePattern.PythonName,
+        ) -> DynamicMessage:
+    return DynamicMessage.create(
+        self.metadata,
+        self.content,
+        field_name_pattern,)
+
+
+_TypedMessage.as_dynamic = _TypedMessage__as_dynamic

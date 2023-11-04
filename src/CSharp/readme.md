@@ -53,3 +53,8 @@ public static void ReadDynamically(TypedMessage message)
     Console.WriteLine(dynamicMessage.OneOf1Field1);
 }
 ```
+
+## Coding Conventions
+
+- generally, coding styles shall be obeyed [.Net C# Coding Style](https://github.com/dotnet/runtime/blob/main/docs/coding-guidelines/coding-style.md).
+  - exceptly double brank lines at out of method is allowed.

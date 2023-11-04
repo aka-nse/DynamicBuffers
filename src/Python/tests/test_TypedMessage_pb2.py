@@ -31,4 +31,9 @@ class TestTypedMessage(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    content = pbt.TestCaseMessage()
+    content.fieldDouble = 1.234
+    content.fieldFloat = 1.234
+    msg = pb.TypedMessage.create(content)
+    dyn = msg.as_dynamic()
